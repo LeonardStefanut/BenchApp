@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">BenchApp</string>
+    <string name="status_ready">Ready</string>
+    <string name="status_warmup">Status: Warm-up Phase %1$d/%2$d...</string>
+    <string name="status_measuring">Status: Measuring Run %1$d/%2$d...</string>
+    <string name="raw_time">%1$.2f ms</string>
+    <string name="score">%1$d Points</string>
+    <string name="status_completed">Status: Test Completed!</string>
+    <string name="initial_text">---</string>
+    <string name="loading_text">...</string>
+</resources>

@@ -1,0 +1,78 @@
+@startuml
+skinparam monochrome true
+
+abstract class AppCompatActivity
+abstract class Fragment
+
+' --- Main Activity ---
+class MainActivity {
+  + bottomNav: BottomNavigationView
+  + onCreate(savedInstanceState: Bundle)
+}
+MainActivity --|> AppCompatActivity
+
+' --- CPU Fragment ---
+class CpuFragment {
+  - integerWorkSize: Int
+  - matrixSize: Int
+  + onCreateView(...)
+  + onViewCreated(...)
+  - runFullBenchmark(testType: TestType)
+}
+enum TestType {
+  INTEGER
+  FLOATING_POINT
+}
+CpuFragment --|> Fragment
+CpuFragment ..> TestType : "<<uses>>"
+
+' --- RAM Fragment ---
+class RamFragment {
+  - blockSizeBytes: Int
+  + onCreateView(...)
+  + onViewCreated(...)
+  - runRamBenchmark()
+}
+RamFragment --|> Fragment
+
+' --- Storage Fragment ---
+class StorageFragment {
+  - fileSizeMB: Int
+  + onCreateView(...)
+  + onViewCreated(...)
+  - runStorageBenchmark()
+}
+StorageFragment --|> Fragment
+
+' --- Battery Fragment ---
+class BatteryFragment {
+  - TEST_DURATION_MINUTES: Int
+  + onCreateView(...)
+  + onViewCreated(...)
+  - runBatteryBenchmark()
+}
+BatteryFragment --|> Fragment
+
+' --- GPU Fragment ---
+class GpuFragment {
+  - renderer: GpuBenchmarkRenderer
+  + onCreateView(...)
+  + onViewCreated(...)
+  - runGpuBenchmark()
+}
+class GpuBenchmarkRenderer {
+  - numCubes: Int
+  + onDrawFrame(gl: GL10)
+  + startTest(durationSeconds: Int)
+}
+GpuFragment --|> Fragment
+GpuFragment "1" *-- "1" GpuBenchmarkRenderer : contains
+
+' --- Relationships from MainActivity ---
+MainActivity ..> CpuFragment : "<<creates>>"
+MainActivity ..> RamFragment : "<<creates>>"
+MainActivity ..> StorageFragment : "<<creates>>"
+MainActivity ..> BatteryFragment : "<<creates>>"
+MainActivity ..> GpuFragment : "<<creates>>"
+
+@enduml

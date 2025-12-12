@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_cpu"
+        android:icon="@android:drawable/ic_menu_agenda"
+        android:title="CPU"/>
+
+    <item
+        android:id="@+id/navigation_gpu"
+        android:icon="@android:drawable/ic_menu_gallery"
+        android:title="GPU"/>
+
+    <item
+        android:id="@+id/navigation_ram"
+        android:icon="@android:drawable/ic_menu_sort_by_size"
+        android:title="RAM"/>
+
+    <item
+        android:id="@+id/navigation_storage"
+        android:icon="@android:drawable/ic_menu_save"
+        android:title="Storage"/>
+
+    <item
+        android:id="@+id/navigation_battery"
+        android:icon="@android:drawable/ic_menu_manage"
+        android:title="Battery"/>
+
+</menu>
