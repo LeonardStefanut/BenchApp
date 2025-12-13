@@ -18,7 +18,6 @@ import com.github.mikephil.charting.data.BarEntry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlin.system.measureTimeMillis
 
 class RamFragment : Fragment() {
 
@@ -116,32 +115,27 @@ class RamFragment : Fragment() {
     private suspend fun performBenchmark(onProgress: suspend (String) -> Unit): List<Double> =
         withContext(Dispatchers.Default) {
             onProgress("Allocating memory...")
-            val memoryBlock = ByteArray(MEMORY_SIZE_IN_BYTES)
+            // Notă: Alocarea rămâne aici, nu în algoritm, pentru că vrem să alocăm o singură dată
+            // și să refolosim blocul. Algoritmul doar scrie/citește.
 
-            val runPass = {
-                measureTimeMillis {
-                    var ignoreSum: Byte = 0
-                    // Write pass
-                    for (j in 0 until MEMORY_SIZE_IN_BYTES) {
-                        memoryBlock[j] = 1
-                    }
-                    // Read pass
-                    for (j in 0 until MEMORY_SIZE_IN_BYTES) {
-                        ignoreSum = memoryBlock[j]
-                    }
-                }
-            }
+            // ✅ Aici am putea muta și alocarea, dar e mai sigur să o lăsăm aici pentru a prinde eroarea de OutOfMemory
+            // direct în Fragment. Dar testul efectiv se face prin apel extern.
 
-            // Perform warm-up runs to stabilize performance
+            // Pentru simplitate maximă și compatibilitate cu BenchmarkAlgorithms.runRamPass care alocă intern:
+            // Vom folosi direct funcția din BenchmarkAlgorithms care face totul (alocare + test).
+
+            // Warm-up
             for (i in 1..WARM_UP_RUNS) {
                 onProgress("Warming up... ($i/$WARM_UP_RUNS)")
-                runPass()
+                BenchmarkAlgorithms.runRamPass(MEMORY_SIZE_IN_BYTES)
             }
 
+            // Test real
             (1..NUM_RUNS).map { i ->
                 onProgress("Running Pass $i/$NUM_RUNS")
 
-                val time = runPass()
+                // ✅ APEL CĂTRE LOGICA COMUNĂ
+                val time = BenchmarkAlgorithms.runRamPass(MEMORY_SIZE_IN_BYTES)
 
                 val totalBytesInRun = (MEMORY_SIZE_IN_BYTES.toLong() * 2)
                 val dataGB = totalBytesInRun / (1024.0 * 1024.0 * 1024.0)

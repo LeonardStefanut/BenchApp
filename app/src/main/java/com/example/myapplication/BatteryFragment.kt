@@ -152,15 +152,7 @@ class BatteryFragment : Fragment() {
             mode = LineDataSet.Mode.CUBIC_BEZIER
 
             setDrawValues(false)
-            valueFormatter = object : ValueFormatter() {
-                override fun getFormattedValue(value: Float): String {
-                    val entry = data.find { it.y == value }
-                    val isFirst = entry == data.firstOrNull()
-                    val isLast = entry == data.lastOrNull() && isLastPoint
 
-                    return if (isFirst || isLast) "${value.toInt()}%" else ""
-                }
-            }
             valueTextSize = 12f
             valueTextColor = Color.DKGRAY
         }

@@ -1,29 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-
+    <item
+        android:id="@+id/navigation_home"
+        android:icon="@drawable/ic_home"
+        android:title="Home" />
     <item
         android:id="@+id/navigation_cpu"
-        android:icon="@android:drawable/ic_menu_agenda"
-        android:title="CPU"/>
-
+        android:icon="@drawable/ic_cpu"
+        android:title="CPU" />
     <item
         android:id="@+id/navigation_gpu"
-        android:icon="@android:drawable/ic_menu_gallery"
-        android:title="GPU"/>
-
+        android:icon="@drawable/ic_gpu"
+        android:title="GPU" />
     <item
         android:id="@+id/navigation_ram"
-        android:icon="@android:drawable/ic_menu_sort_by_size"
-        android:title="RAM"/>
-
+        android:icon="@drawable/ic_ram"
+        android:title="RAM" />
     <item
-        android:id="@+id/navigation_storage"
-        android:icon="@android:drawable/ic_menu_save"
-        android:title="Storage"/>
-
-    <item
-        android:id="@+id/navigation_battery"
-        android:icon="@android:drawable/ic_menu_manage"
-        android:title="Battery"/>
-
+        android:id="@+id/navigation_more"
+        android:icon="@drawable/ic_more"
+        android:title="More" />
 </menu>

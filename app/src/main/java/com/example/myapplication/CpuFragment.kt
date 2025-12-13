@@ -15,9 +15,6 @@ import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import kotlin.system.measureTimeMillis
 import kotlinx.coroutines.*
-import kotlin.math.floor
-import kotlin.math.sqrt
-import kotlin.random.Random
 
 private const val BASELINE_INTEGER_TIME_MS = 2000.0
 private const val BASELINE_INTEGER_SCORE = 1000.0
@@ -34,6 +31,7 @@ class CpuFragment : Fragment() {
     private lateinit var statusTextView: TextView
     private lateinit var cpuBenchmarkChart: BarChart
 
+    // Parametrii pentru test (îi trimitem acum către BenchmarkAlgorithms)
     private val integerWorkSize = 1500000
     private val matrixSize = 200
     private val numRuns = 20
@@ -99,53 +97,26 @@ class CpuFragment : Fragment() {
         cpuBenchmarkChart.invalidate()
     }
 
-    private fun calculatePrimes(): Int {
-        var primeCount = 0
-        for (number in 2..integerWorkSize) {
-            var isPrime = true
-            val limit = floor(sqrt(number.toDouble())).toInt()
-            for (factor in 2..limit) {
-                if (number % factor == 0) {
-                    isPrime = false
-                    break
-                }
-            }
-            if (isPrime) {
-                primeCount++
-            }
-        }
-        return primeCount
-    }
-
-    private fun calculateMatrixMultiplication(): Array<Array<Double>> {
-        val matrixA = Array(matrixSize) { Array(matrixSize) { Random.nextDouble() } }
-        val matrixB = Array(matrixSize) { Array(matrixSize) { Random.nextDouble() } }
-        val resultMatrix = Array(matrixSize) { Array(size = matrixSize, init = { 0.0 }) }
-
-        for (i in 0 until matrixSize) {
-            for (j in 0 until matrixSize) {
-                var sum = 0.0
-                for (k in 0 until matrixSize) {
-                    sum += matrixA[i][k] * matrixB[k][j]
-                }
-                resultMatrix[i][j] = sum
-            }
-        }
-        return resultMatrix
-    }
+    // Funcțiile matematice au fost șterse de aici și mutate în BenchmarkAlgorithms
 
     private fun runFullBenchmark(testType: TestType) {
         integerTestButton.isEnabled = false
         floatingPointTestButton.isEnabled = false
         rawTimeTextView.text = getString(R.string.loading_text)
 
+        // Folosim GlobalScope sau lifecycleScope (mai bine lifecycleScope, dar păstrăm structura ta)
         CoroutineScope(Dispatchers.Default).launch {
             val warmUpRuns = 5
             for (i in 1..warmUpRuns) {
                 withContext(Dispatchers.Main) {
                     statusTextView.text = getString(R.string.status_warmup, i, warmUpRuns)
                 }
-                if (testType == TestType.INTEGER) calculatePrimes() else calculateMatrixMultiplication()
+                // ✅ APEL CĂTRE LOGICA COMUNĂ
+                if (testType == TestType.INTEGER) {
+                    BenchmarkAlgorithms.calculatePrimes(integerWorkSize)
+                } else {
+                    BenchmarkAlgorithms.calculateMatrixMultiplication(matrixSize)
+                }
             }
 
             val times = mutableListOf<Double>()
@@ -154,7 +125,12 @@ class CpuFragment : Fragment() {
                     statusTextView.text = getString(R.string.status_measuring, i, numRuns)
                 }
                 val timeMs = measureTimeMillis {
-                    if (testType == TestType.INTEGER) calculatePrimes() else calculateMatrixMultiplication()
+                    // ✅ APEL CĂTRE LOGICA COMUNĂ
+                    if (testType == TestType.INTEGER) {
+                        BenchmarkAlgorithms.calculatePrimes(integerWorkSize)
+                    } else {
+                        BenchmarkAlgorithms.calculateMatrixMultiplication(matrixSize)
+                    }
                 }
                 times.add(timeMs.toDouble())
             }

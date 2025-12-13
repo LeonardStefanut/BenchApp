@@ -19,8 +19,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
 
 data class StorageBenchmarkResult(val writeSpeed: Double, val readSpeed: Double)
 
@@ -37,8 +35,8 @@ class StorageFragment : Fragment() {
         private const val BASELINE_READ_SPEED_MBs = 500.0
         private const val BASELINE_STORAGE_SCORE = 1000.0
         private const val TEST_FILE_NAME = "storage_benchmark_temp_file.bin"
-        private const val FILE_SIZE_MB = 100 // Reduced for quicker multiple runs
-        private const val BLOCK_SIZE_BYTES = 4 * 1024 * 1024
+        private const val FILE_SIZE_MB = 100 // Dimensiunea fișierului de test
+        private const val BLOCK_SIZE_BYTES = 4 * 1024 * 1024 // 4MB buffer
         private const val NUM_RUNS = 5
     }
 
@@ -151,29 +149,19 @@ class StorageFragment : Fragment() {
             val results = (1..NUM_RUNS).map { run ->
                 onProgress("Running Pass $run/$NUM_RUNS")
 
-                val writeTime = kotlin.system.measureTimeMillis {
-                    FileOutputStream(testFile).use { fos ->
-                        var bytesWritten = 0L
-                        while (bytesWritten < totalBytes) {
-                            fos.write(dataChunk)
-                            bytesWritten += BLOCK_SIZE_BYTES
-                        }
-                    }
-                }
+                // ✅ APEL CĂTRE LOGICA COMUNĂ: Write
+                val writeTime = BenchmarkAlgorithms.runStorageWrite(testFile, dataChunk, totalBytes)
                 val writeSpeed = (totalBytes / (1024.0 * 1024.0)) / (writeTime / 1000.0)
 
-                val readTime = kotlin.system.measureTimeMillis {
-                    FileInputStream(testFile).use { fis ->
-                        while (fis.read(dataChunk) != -1) {}
-                    }
-                }
+                // ✅ APEL CĂTRE LOGICA COMUNĂ: Read
+                val readTime = BenchmarkAlgorithms.runStorageRead(testFile, dataChunk)
                 val readSpeed = (totalBytes / (1024.0 * 1024.0)) / (readTime / 1000.0)
 
+                // Curățăm fișierul după fiecare run ca să nu umplem memoria
                 if (testFile.exists()) testFile.delete()
 
                 StorageBenchmarkResult(writeSpeed, readSpeed)
             }
-
             results
         }
 
