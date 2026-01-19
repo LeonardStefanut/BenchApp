@@ -26,7 +26,6 @@ class HomeFragment : Fragment() {
     private lateinit var gpuSurface: GLSurfaceView
     private lateinit var renderer: GpuBenchmarkRenderer
 
-    // Scoruri temporare
     private var scoreCpu = 0.0
     private var scoreRam = 0.0
     private var scoreStorage = 0.0
@@ -47,12 +46,11 @@ class HomeFragment : Fragment() {
         progressBar = view.findViewById(R.id.globalProgressBar)
         gpuSurface = view.findViewById(R.id.globalGpuSurface)
 
-        // Configurare GPU
         gpuSurface.setEGLContextClientVersion(1)
-        renderer = GpuBenchmarkRenderer(500) // 500 cuburi
+        renderer = GpuBenchmarkRenderer(500)
         gpuSurface.setRenderer(renderer)
         gpuSurface.renderMode = GLSurfaceView.RENDERMODE_CONTINUOUSLY
-        gpuSurface.onPause() // Pauză la start ca să nu consume resurse
+        gpuSurface.onPause()
 
         btnRunAll.setOnClickListener {
             runAllTests()
@@ -65,60 +63,50 @@ class HomeFragment : Fragment() {
         progressBar.progress = 0
 
         viewLifecycleOwner.lifecycleScope.launch {
-            // 1. CPU TEST
             log(">>> Running CPU Test...")
             scoreCpu = runCpuTest()
             progressBar.progress = 25
             log("CPU Done. Score: ${scoreCpu.toInt()}")
 
-            // 2. RAM TEST
             log("\n>>> Running RAM Test...")
             scoreRam = runRamTest()
             progressBar.progress = 50
             log("RAM Done. Score: ${scoreRam.toInt()}")
 
-            // 3. STORAGE TEST
             log("\n>>> Running Storage Test...")
             scoreStorage = runStorageTest()
             progressBar.progress = 75
             log("Storage Done. Score: ${scoreStorage.toInt()}")
 
-            // 4. GPU TEST
             log("\n>>> Running GPU Test (Look at the view above)...")
-            gpuSurface.onResume() // Pornim randarea
+            gpuSurface.onResume()
             scoreGpu = runGpuTest()
-            gpuSurface.onPause() // Oprim randarea
+            gpuSurface.onPause()
             progressBar.progress = 100
             log("GPU Done. Score: ${scoreGpu.toInt()}")
 
-            // FINAL
             showFinalResults()
             btnRunAll.isEnabled = true
         }
     }
 
-    // --- Funcții ajutătoare (Suspend) ---
 
     private suspend fun runCpuTest(): Double = withContext(Dispatchers.Default) {
-        // Integer
         val timeInt = kotlin.system.measureTimeMillis {
             BenchmarkAlgorithms.calculatePrimes(1000000)
         }
-        // Float
         val timeFloat = kotlin.system.measureTimeMillis {
             BenchmarkAlgorithms.calculateMatrixMultiplication(150)
         }
 
-        // Calcul scor simplificat
         val scoreI = (2000.0 / timeInt) * 1000.0
         val scoreF = (1500.0 / timeFloat) * 1000.0
         return@withContext (scoreI + scoreF) / 2
     }
 
     private suspend fun runRamTest(): Double = withContext(Dispatchers.Default) {
-        val size = 32 * 1024 * 1024 // 32MB
+        val size = 32 * 1024 * 1024
         val time = BenchmarkAlgorithms.runRamPass(size)
-        // Calcul Bandwidth
         val gb = (size * 2.0) / (1024.0 * 1024.0 * 1024.0)
         val sec = time / 1000.0
         val bandwidth = gb / sec
@@ -129,7 +117,7 @@ class HomeFragment : Fragment() {
         val file = File(requireContext().filesDir, "temp_bench.bin")
         val sizeMB = 50
         val bytes = sizeMB * 1024L * 1024L
-        val buffer = ByteArray(1024 * 1024) // 1MB buffer
+        val buffer = ByteArray(1024 * 1024)
 
         val tWrite = BenchmarkAlgorithms.runStorageWrite(file, buffer, bytes)
         val tRead = BenchmarkAlgorithms.runStorageRead(file, buffer)
@@ -144,20 +132,16 @@ class HomeFragment : Fragment() {
         return@withContext (sW + sR) / 2
     }
 
-    // GPU e special, trebuie să așteptăm callback-ul
     private suspend fun runGpuTest(): Double = suspendCoroutine { continuation ->
-        // Setăm callback-ul pe renderer
         renderer.onTestCompleteListener = { avgFps, _ ->
             val score = (avgFps / 60.0) * 1000.0
             continuation.resume(score)
         }
-        // Pornim testul pentru 5 secunde
         renderer.startTest(5)
     }
 
     private fun log(msg: String) {
         tvLog.append("$msg\n")
-        // Scroll automat jos
         tvLog.post {
             val scrollAmount = tvLog.layout.getLineTop(tvLog.lineCount) - tvLog.height
             if (scrollAmount > 0)

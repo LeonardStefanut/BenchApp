@@ -31,7 +31,6 @@ class CpuFragment : Fragment() {
     private lateinit var statusTextView: TextView
     private lateinit var cpuBenchmarkChart: BarChart
 
-    // Parametrii pentru test (îi trimitem acum către BenchmarkAlgorithms)
     private val integerWorkSize = 1500000
     private val matrixSize = 200
     private val numRuns = 20
@@ -97,21 +96,17 @@ class CpuFragment : Fragment() {
         cpuBenchmarkChart.invalidate()
     }
 
-    // Funcțiile matematice au fost șterse de aici și mutate în BenchmarkAlgorithms
-
     private fun runFullBenchmark(testType: TestType) {
         integerTestButton.isEnabled = false
         floatingPointTestButton.isEnabled = false
         rawTimeTextView.text = getString(R.string.loading_text)
 
-        // Folosim GlobalScope sau lifecycleScope (mai bine lifecycleScope, dar păstrăm structura ta)
         CoroutineScope(Dispatchers.Default).launch {
             val warmUpRuns = 5
             for (i in 1..warmUpRuns) {
                 withContext(Dispatchers.Main) {
                     statusTextView.text = getString(R.string.status_warmup, i, warmUpRuns)
                 }
-                // ✅ APEL CĂTRE LOGICA COMUNĂ
                 if (testType == TestType.INTEGER) {
                     BenchmarkAlgorithms.calculatePrimes(integerWorkSize)
                 } else {
@@ -125,7 +120,6 @@ class CpuFragment : Fragment() {
                     statusTextView.text = getString(R.string.status_measuring, i, numRuns)
                 }
                 val timeMs = measureTimeMillis {
-                    // ✅ APEL CĂTRE LOGICA COMUNĂ
                     if (testType == TestType.INTEGER) {
                         BenchmarkAlgorithms.calculatePrimes(integerWorkSize)
                     } else {

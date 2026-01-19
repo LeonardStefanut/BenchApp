@@ -9,9 +9,7 @@ import kotlin.random.Random
 
 object BenchmarkAlgorithms {
 
-    // --- LOGICA PENTRU CPU ---
 
-    // Calcul numere prime (pentru testul Integer)
     fun calculatePrimes(workSize: Int): Int {
         var primeCount = 0
         for (number in 2..workSize) {
@@ -30,7 +28,6 @@ object BenchmarkAlgorithms {
         return primeCount
     }
 
-    // Înmulțire matrici (pentru testul Float)
     fun calculateMatrixMultiplication(matrixSize: Int): Array<Array<Double>> {
         val matrixA = Array(matrixSize) { Array(matrixSize) { Random.nextDouble() } }
         val matrixB = Array(matrixSize) { Array(matrixSize) { Random.nextDouble() } }
@@ -48,28 +45,21 @@ object BenchmarkAlgorithms {
         return resultMatrix
     }
 
-    // --- LOGICA PENTRU RAM ---
 
-    // Scriere și citire rapidă în memorie
     fun runRamPass(memorySizeBytes: Int): Long {
         val memoryBlock = ByteArray(memorySizeBytes)
-        // Măsurăm timpul pentru scriere și citire
         return kotlin.system.measureTimeMillis {
             var ignoreSum: Byte = 0
-            // Scriere
             for (j in 0 until memorySizeBytes) {
                 memoryBlock[j] = 1
             }
-            // Citire
             for (j in 0 until memorySizeBytes) {
                 ignoreSum = memoryBlock[j]
             }
         }
     }
 
-    // --- LOGICA PENTRU STORAGE ---
 
-    // Scriere în fișier
     fun runStorageWrite(file: File, buffer: ByteArray, totalBytes: Long): Long {
         return kotlin.system.measureTimeMillis {
             FileOutputStream(file).use { fos ->
@@ -82,12 +72,10 @@ object BenchmarkAlgorithms {
         }
     }
 
-    // Citire din fișier
     fun runStorageRead(file: File, buffer: ByteArray): Long {
         return kotlin.system.measureTimeMillis {
             FileInputStream(file).use { fis ->
                 while (fis.read(buffer) != -1) {
-                    // Citim continuu
                 }
             }
         }

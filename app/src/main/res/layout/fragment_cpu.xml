@@ -7,7 +7,6 @@
     android:padding="20dp"
     android:gravity="top">
 
-    <!-- Existing UI elements... -->
 
     <TextView
         android:id="@+id/titleTextView"

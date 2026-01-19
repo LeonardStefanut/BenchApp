@@ -35,7 +35,6 @@ class MainActivity : AppCompatActivity() {
             true
         }
 
-        // Load the default fragment
         if (savedInstanceState == null) {
             bottomNav.selectedItemId = R.id.navigation_home
         }

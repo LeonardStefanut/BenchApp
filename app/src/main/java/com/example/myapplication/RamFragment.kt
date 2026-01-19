@@ -115,26 +115,15 @@ class RamFragment : Fragment() {
     private suspend fun performBenchmark(onProgress: suspend (String) -> Unit): List<Double> =
         withContext(Dispatchers.Default) {
             onProgress("Allocating memory...")
-            // Notă: Alocarea rămâne aici, nu în algoritm, pentru că vrem să alocăm o singură dată
-            // și să refolosim blocul. Algoritmul doar scrie/citește.
 
-            // ✅ Aici am putea muta și alocarea, dar e mai sigur să o lăsăm aici pentru a prinde eroarea de OutOfMemory
-            // direct în Fragment. Dar testul efectiv se face prin apel extern.
-
-            // Pentru simplitate maximă și compatibilitate cu BenchmarkAlgorithms.runRamPass care alocă intern:
-            // Vom folosi direct funcția din BenchmarkAlgorithms care face totul (alocare + test).
-
-            // Warm-up
             for (i in 1..WARM_UP_RUNS) {
                 onProgress("Warming up... ($i/$WARM_UP_RUNS)")
                 BenchmarkAlgorithms.runRamPass(MEMORY_SIZE_IN_BYTES)
             }
 
-            // Test real
             (1..NUM_RUNS).map { i ->
                 onProgress("Running Pass $i/$NUM_RUNS")
 
-                // ✅ APEL CĂTRE LOGICA COMUNĂ
                 val time = BenchmarkAlgorithms.runRamPass(MEMORY_SIZE_IN_BYTES)
 
                 val totalBytesInRun = (MEMORY_SIZE_IN_BYTES.toLong() * 2)

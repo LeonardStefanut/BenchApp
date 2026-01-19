@@ -24,7 +24,7 @@ import kotlin.math.sqrt
 
 private const val BASELINE_BATTERY_DRAIN_PERCENT = 5.0
 private const val BASELINE_BATTERY_SCORE = 1000.0
-private const val TEST_DURATION_MINUTES = 15 // Restored to original duration
+private const val TEST_DURATION_MINUTES = 15
 private const val DATA_POINT_INTERVAL_MINUTES = 1
 
 class BatteryFragment : Fragment() {
@@ -91,7 +91,6 @@ class BatteryFragment : Fragment() {
             val intervalMs = DATA_POINT_INTERVAL_MINUTES * 60 * 1000
             var nextDataLogTime = startTime
 
-            // Pre-configure the chart for the test
             withContext(Dispatchers.Main) {
                 setupChart(emptyList(), isLastPoint = false, startBatteryLevel)
             }
@@ -212,7 +211,7 @@ class BatteryFragment : Fragment() {
 
     override fun onPause() {
         super.onPause()
-        benchmarkJob?.cancel() // Stop benchmark if user navigates away
+        benchmarkJob?.cancel()
         activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     }
 }
